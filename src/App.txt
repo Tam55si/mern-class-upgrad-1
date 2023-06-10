@@ -1,0 +1,40 @@
+const express = require('express');
+const cors = require('cors');
+const app = express();
+const dotenv = require('dotenv').config();
+
+const port = process.env.PORT;
+const mongodb = require('mongodb');
+
+mongodb.MongoClient.connect(process.env.USER_DB)
+.then(client => {
+    const db = client.db("UsersDB");
+    const UserCollection = db.collection("UsersCollection");
+
+    app.use(cors());
+    app.use(express.json());
+
+    app.post("/setUser", (req, res) => {
+        UserCollection.insertOne(req.body)
+        .then(result => res.status(200).json({message: "details added successfully"}))
+        .catch(err => console.log(err));
+    })
+
+    app.get("/getUser", (req, res) => {
+        UserCollection.findOne({name: "Rehbar"})
+        .then(result => res.status(200).json({message: result}))
+        .catch(err => console.log(err));
+    })
+
+    app.listen(port, () => console.log("listening on port " + port));
+})
+.catch(err => console.log(err));
+
+
+
+
+// app.get("/user", (req, res) => res.send("Get method ! "))  
+// app.put("/user", (req, res) => res.send("put/update method ! "))  
+// app.delete("/user", (req, res) => res.send("delete method ! "))  
+
+// app.get("*", (req, res) => res.send("Page not found"))
